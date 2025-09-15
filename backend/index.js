@@ -10,6 +10,7 @@ require("dotenv").config();
 const path =  require("path");
 const cors = require("cors");
 const { error } = require("console");
+const Product  = require("./schema/product");
 
 app.use(express.json());
 app.use(cors());
@@ -55,22 +56,33 @@ app.post("/upload", upload.single("product"), (req, res) => {
     });
 });
 
+app.post("/addproduct", async(req, res)=>{
+    const products = await Product.find({});
+    let id;
+    if(products.length > 0){
+        let last_product_array = products.slice(-1);
+        let last_product = last_product_array[0];
+        id = last_product.id+1
+    }else{
+        id = 1
+    }
+    const product = new Product({
+        id: id,
+        name: req.body.name,
+        image: req.body.image,
+        category: req.body.category,
+        new_price: req.body.new_price,
+        old_price: req.body.old_price
+    });
+    console.log(product);
+    await product.save();
+    console.log("Saved");
+    res.json({
+        success: true,
+        name: req.body.name,
 
-// app.post("/upload", upload.single("product"), (req, res) => {
-//     if (!req.file) {
-//         return res.status(400).json({
-//             success: 0,
-//             message: "No file uploaded. Make sure the field name is 'product'."
-//         });
-//     }
-
-//     res.json({
-//         success: 1,
-//         img_url: `http://localhost:${port}/images/${req.file.filename}`
-//     });
-// });
-
-
+    })
+});
 
 app.listen(port, (error)=> {     
     if (!error) {
