@@ -56,6 +56,8 @@ app.post("/upload", upload.single("product"), (req, res) => {
     });
 });
 
+
+// Api to Create product
 app.post("/addproduct", async(req, res)=>{
     const products = await Product.find({});
     let id;
@@ -83,6 +85,24 @@ app.post("/addproduct", async(req, res)=>{
 
     })
 });
+
+
+// Creating API For Delete
+app.post("/removeproduct", async (req, res)=> {
+    await Product.findOneAndDelete({id: req.body.id});
+    console.log("Removed")
+    res.json({
+        success: true,
+        name: req.body.name
+    })
+});
+
+// Creating Api For Getting All Product
+app.get("/allproduct", async(req, res)=> {
+    let products = await Product.find({});
+    console.log("all product fetched");
+    res.send(products);
+})
 
 app.listen(port, (error)=> {     
     if (!error) {
