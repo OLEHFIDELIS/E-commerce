@@ -15,6 +15,8 @@ const Product  = require("./schema/product");
 app.use(express.json());
 app.use(cors());
 app.use("/images", express.static("uploads/images"))
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Database Connection With MongoDB
 mongoose.connect(`mongodb+srv://${process.env.DB_NAME}:${process.env.DB_PASWORD}@cluster0.1fb4jph.mongodb.net/e-commerce`)
