@@ -15,12 +15,28 @@ const LoginSignup = ()=> {
 
     const login = async()=> {
         console.log("Login Executed", formData);
+        let responseData;
+        await fetch("http://localhost:4000/login",{
+            method:"POST",
+            headers: {
+                Accept: "application/form-data",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        }).then((response)=> response.json()).then((data)=>responseData = data)
+        if(responseData.success){
+            localStorage.setItem("auth-token", responseData.token);
+            window.location.replace("/")
+        }else{
+            alert(responseData.errors)
+            window.location.replace("/login")
+        }
 
     };
 
     const signup = async()=> {
         console.log("Sign Up Executed", formData);
-        let respomseData;
+        let responseData;
         await fetch("http://localhost:4000/signup",{
             method:"POST",
             headers: {
@@ -28,10 +44,13 @@ const LoginSignup = ()=> {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(formData)
-        }).then((response)=> response.json()).then((data)=>respomseData = data)
-        if(respomseData.success){
-            localStorage.setItem("auth-token", respomseData.token);
+        }).then((response)=> response.json()).then((data)=>responseData = data)
+        if(responseData.success){
+            localStorage.setItem("auth-token", responseData.token);
             window.location.replace("/")
+        }else{
+            alert(responseData.errors)
+            window.location.replace("/login")
         }
     };
 
