@@ -138,8 +138,24 @@ app.post("/signup", async(req, res)=> {
 
 // User login Api
 app.post("/login", async(req, res)=> {
-    
-})
+    let user = await User.findOne({email: req.body.email});
+    if (user) {
+        const passConpere = req.body.password === user.password;
+        if (passConpere) {
+            const data = {
+                user: {
+                    id: user.id
+                }
+            }
+            const token = jwt.sign(data, "secret_ecom");
+            res.json({success: true, token});
+        }else{
+            res.json({success: false, error: "Password or Username is Incorrect "})
+        }
+    }else{
+        res.json({success: false, error: "Wrong Email or Password"})
+    }
+});
 
 app.listen(port, (error)=> {     
     if (!error) {
