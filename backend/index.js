@@ -11,6 +11,7 @@ const path =  require("path");
 const cors = require("cors");
 const { error } = require("console");
 const Product  = require("./schema/product");
+const User = require("./schema/user");
 
 app.use(express.json());
 app.use(cors());
@@ -106,6 +107,40 @@ app.get("/allproduct", async(req, res)=> {
     res.send(products);
 })
 
+// Create User Api 
+app.post("/signup", async(req, res)=> {
+    let check = await User.findOne({email: req.body.email});
+    if (check) {
+        return res.status(400).json({success: false, errors: "email address already exist"})
+    }
+    let cart = {};
+    for (let i = 0; i < 300; i++) {
+        cart[i] = 0;
+    }
+    const user = new User({
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+        cart: cart
+    });
+
+    await user.save();
+
+    const data = {
+        user: {
+            id: user.id
+        }
+    }
+
+    const token =  jwt.sign(data, "secret_ecom");
+    res.json({success: true, token})
+});
+
+// User login Api
+app.post("/login", async(req, res)=> {
+    
+})
+
 app.listen(port, (error)=> {     
     if (!error) {
        console.log(`Connection sucesfuly on ${port}`)  
@@ -113,7 +148,3 @@ app.listen(port, (error)=> {
         console.log("error: "+error)
     }
 })
-
-
-
-
