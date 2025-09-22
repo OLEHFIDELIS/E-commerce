@@ -157,6 +157,22 @@ app.post("/login", async(req, res)=> {
     }
 });
 
+// creating endpint point for newCollection data 
+app.get("/newcollection", async(req,res)=> {
+    let product = await Product.find({});
+    let newcollection = product.slice(1).slice(-8);
+    console.log("New Collection Fetched");
+    res.send(newcollection);
+});
+
+// Creating End Point For Purpular_in_women Data
+app.get("/popularinwomen", async(req, res)=>{
+    let product = await Product.find({category:"women"});
+    let popular_in_women = product.slice(0,4);
+    console.log("Popular in Women Fetched");
+    res.send(popular_in_women)
+})
+
 app.listen(port, (error)=> {     
     if (!error) {
        console.log(`Connection sucesfuly on ${port}`)  
