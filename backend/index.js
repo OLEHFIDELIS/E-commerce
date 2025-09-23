@@ -165,13 +165,59 @@ app.get("/newcollection", async(req,res)=> {
     res.send(newcollection);
 });
 
-// Creating End Point For Purpular_in_women Data
+// Creating Endpoint For Purpular_in_women Data
 app.get("/popularinwomen", async(req, res)=>{
     let product = await Product.find({category:"women"});
     let popular_in_women = product.slice(0,4);
     console.log("Popular in Women Fetched");
     res.send(popular_in_women)
-})
+});
+
+// Creating middleware to fetch user 
+const fetchUser = async(req, res, next)=> {
+    const token = req.header("auth-token");
+    if (!token) {
+        res.status(401).send({errors: "Please Authenticate using Valid Token "})
+    }else{
+        try {
+            const data = jwt.verify(token, "secret_ecom");
+            req.user = data.user;
+            next();
+        } catch (error) {
+            res.status(401).send({errors: "please authenticate using a valid token"})
+        }
+    }
+}
+
+// Creating Endpoint for Cart Iterms 
+app.post("/addtocart",fetchUser, async(req,res)=> {
+    console.log("Added", req.body.itemId)
+    let userData = await User.findOne({_id: req.user.id});
+    userData.cart[req.body.itemId] += 1;
+    await User.findOneAndUpdate({_id: req.user.id}, {cart: userData.cart});
+    res.send("Added")
+});
+
+// Creating Endpoint To Remove cart item
+app.post("/removefromcart",fetchUser, async(req,res)=> {
+    console.log("Removed", req.body.itemId)
+    let userData = await User.findOne({_id: req.user.id});
+    if(userData.cart[req.body.itemId])
+    userData.cart[req.body.itemId] -= 1;
+    await User.findOneAndUpdate({_id: req.user.id}, {cart: userData.cart});
+    res.send("Removed")
+});
+
+// Creating Endpoint To Get User Cart
+app.get("/getcart", fetchUser, async (req, res) => {
+    try {
+        let userData = await User.findOne({ _id: req.user.id });
+        res.json({ cartData: userData.cart });
+    } catch (error) {
+        console.error("Error fetching cart:", error.message);
+        res.status(500).json({ error: "Server error fetching cart" });
+    }
+});
 
 app.listen(port, (error)=> {     
     if (!error) {
